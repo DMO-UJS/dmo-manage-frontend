@@ -1,12 +1,10 @@
 <template>
-	<el-header id="head" height="300px">
-		<img id="logo" src="../assets/医院.svg">
-		<br/>
-		镇江第四人民医院
+	<el-header id="head" height="300">
+		<div class="header-logo"><img id="logo" src="../assets/医院.svg">镇江第四人民医院</div>
 		<el-menu
 			name="nav"
-			background-color="#545c64"
-			text-color="#fff" 
+			background-color="#e4e7ed"
+			text-color="#000" 
 			mode="horizontal">
 			<el-menu-item index="1" @click="goHome">首页</el-menu-item>
 			<el-menu-item index="2" v-if="projectName">{{projectName}}</el-menu-item>
@@ -18,9 +16,9 @@
 		</el-menu>
 		<el-menu
 			name="menu"
-			background-color="#545c64"
+			background-color="#e4e7ed"
 			mode="horizontal"
-			text-color="#fff"
+			text-color="#000"
 			v-if="projectName">
 			<el-menu-item index="1" @click="selectClass">类</el-menu-item>
 			<el-menu-item index="2" @click="selectProperty">属性</el-menu-item>
@@ -57,17 +55,20 @@
 	.el-header{
 		padding: 0px;
 		margin: 0;
+		color: #000;
 	}
-	.el-header > img {
+	.el-header  img {
 		width: 50px;
 		height: 50px;
+		margin-bottom: -15px;
 	}
 
-	.el-header .el-menu {
-		/*height: 60px;*/
+	.el-header .header-logo {
+		margin-bottom: 15px;
 	}
-	.el-header  .el-menu[name="nav"] {
-		margin-top: 10px;
+
+	.el-header  .el-menu{
+		margin: 2px 0;
 	}
 	#login {
 		float: right;

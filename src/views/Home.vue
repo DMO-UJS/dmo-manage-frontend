@@ -2,7 +2,7 @@
 	<div class="home">
 			<headTop></headTop>
 			<el-container>
-				<el-aside width="200px" class="aside">
+				<el-aside width="200px">
 					<el-button type="primary" @click="dialogVisable = true">创建本体库</el-button>
 					<el-dialog title="创建本体库" :visible.sync="dialogVisable" width="800px">
 						<el-form :model="ontologyLibrary">
@@ -33,9 +33,10 @@
 					<el-table
 					:data="ontologyLibraryList"
 					highlight-current-row
-    			@current-change="handleCurrentChange"
     			@row-dblclick="handleCurrentEdit"
-					style="width: 100%"
+					style="width: 100%;"
+					:header-cell-style="{background: '#e4e7ed'}"
+					:row-style="{background: 'transparent'}"
 					:deafult-sort = "{prop: 'data', order: 'descending'}">
 						<el-table-column
 							prop="name"
@@ -62,8 +63,8 @@
 							label="操作"
 							align=center
 							width="200">
-							<template scope="scope">
-								<el-button icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)"></el-button>
+							<template slot-scope="scope">
+								<el-button icon="el-icon-edit" @click="handleEdit(scope.row)"></el-button>
 								<el-button icon="el-icon-delete" @click="handleDelete(scope.$index, ontologyLibraryList)"></el-button>
 							</template>
 						</el-table-column>
@@ -119,13 +120,13 @@ import headTop from '../components/Header'
 			}
 		},
 		mounted() {
-			this.init()
+			this.getOntologyLibraryList()
 		},
 		components: {
 			headTop
 		},
 		methods: {
-			init: function () {
+			getOntologyLibraryList: function () {
 				this.$http.get("http://192.168.1.102:5000/ontolist")
 					.then((response) => {
 						this.ontologyLibraryList = response.data
@@ -156,9 +157,11 @@ import headTop from '../components/Header'
 			},
 			handleCurrentEdit: function (row) {
 				console.log(row)
+				this.$router.push('class')
 			},
-			handleEdit: function (index, rowData) {
-				console.log(rowData)
+			handleEdit: function (row) {
+				console.log(row)
+				this.$router.push('class')
 			},
 			handleDelete(index, rows) {
 		    let message = rows.splice(index, 1)[0];
@@ -187,17 +190,24 @@ import headTop from '../components/Header'
 	}
 </script>
 
-<style>
-	.aside {
+<style scoped>
+	.el-container {
+		margin-top: 5px;
+	}
+	.el-aside {
 		padding: 35px;
+		background-color: #e4e7ed;
 	}
 
+	.el-main {
+		margin-left: 5px;
+		background-color: #e4e7ed;
+	}
 	.fileItem input {
 		border: none;
 		line-height: 100%;
 	}
-	el-table el-button {
-		border: none;
-		outline: none;
+	.el-table {
+		background-color: transparent;
 	}
 </style>

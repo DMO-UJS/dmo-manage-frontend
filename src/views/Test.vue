@@ -1,43 +1,17 @@
 <template>
 	<div class="test">
-		<el-row :gutter="20">
-		  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-		  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-		  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-		  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-		</el-row>
 	</div>
 </template>
 
 <script>
+  // import classHierarchy from '../components/ClassHierarchy'
 	export default {
-		name: "test"
+		name: "test",
+    components: {
+    } 
 	}	
 </script>
 
 <style scoped>
-  .el-row {
-    margin-bottom: 20px;
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-  .el-col {
-  }
-  .bg-purple-dark {
-    background: #99a9bf;
-  }
-  .bg-purple {
-    background: #d3dce6;
-  }
-  .bg-purple-light {
-    background: #e5e9f2;
-  }
-  .grid-content {
-    min-height: 36px;
-  }
-  .row-bg {
-    padding: 10px 0;
-    /*background-color: #f9fafc;*/
-  }
+
 </style>
