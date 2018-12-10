@@ -11,14 +11,24 @@
 							</div>
 							<div class="classA-hierarchy-tools">
 								<el-row>
-									<el-button type="primary" icon="el-icon-plus" circle size="mini"></el-button>
-									<el-button type="danger" icon="el-icon-minus" circle size="mini"></el-button>
+									<el-button type="primary" icon="el-icon-plus" circle size="mini" @click="addClassDialogVisable = true"></el-button>
+									<el-button type="danger" icon="el-icon-minus" circle size="mini" @click="removeClass"></el-button>
 									<el-button type="success" icon="el-icon-search" circle size="mini"></el-button>
 								</el-row>
+								<el-dialog title="添加类项" :visible.sync="addClassDialogVisable" width="800px">
+										<el-form>
+											<el-form-item label="类名">
+												<el-input type="text" v-model="className"></el-input>
+											</el-form-item>
+											<el-form-item>
+												<el-button type="primary" @click="addClass">添加</el-button>
+											</el-form-item>
+										</el-form>
+									</el-dialog>
 							</div>
 						</el-header>
 						<el-main>
-							层级关系
+							<classHierarchy :ontology-library="ontologyLibrary"></classHierarchy>
 						</el-main>
 					</el-container>
 				</div>
@@ -75,7 +85,7 @@
 							</div>
 						</el-main>
 						<el-main v-if="viewVisable">
-							<svg></svg>
+
 						</el-main>
 					</el-container>
 				</div>
@@ -120,12 +130,12 @@
 <script>
 
 import headTop from "../components/Header"
+import classHierarchy from "../components/ClassHierarchy"
 
 	export default {
 		name: "class",
 		data() {
 			return {
-				projectName: 'dmo',
 				selectedClass: {
 					className:'疾病',
 					iri: 'http://owl/onto.owl#疾病',
@@ -134,6 +144,7 @@ import headTop from "../components/Header"
 					relationships: [],
 					comments: []
 				},
+				className: '',
 				annotation:{
 					property: '',
 					value: ''
@@ -151,10 +162,25 @@ import headTop from "../components/Header"
 				dialogVisable: false,
 				detailVisable: true,
 				viewVisable: false,
+				addClassDialogVisable: false,
+				url: 'http://192.168.1.110:5000/', 
+			}
+		},
+		computed: {
+			ontologyLibrary() {
+				return this.$store.state.selectedOntologyLibrary
+			},
+			projectName:function () {
+				// console.log(this.$store.state.libraryName)
+				return this.$store.state.libraryName
+			},
+			selectedClassName: function () {
+				return this.$store.state.selectedClassName
 			}
 		},
 		components: {
-			headTop
+			headTop,
+			classHierarchy
 		},
 		methods: {
 			editComments: function () {
@@ -164,11 +190,34 @@ import headTop from "../components/Header"
 				this.selectedClass.comments.push(this.comment)
 				this.comment = ''
 				this.dialogVisable = false
+			},
+			addClass: function () {
+				this.addClassDialogVisable = false
+				var message = {'className': this.className, 'parentName': this.selectedClassName, 'libraryName': this.projectName}
+				let url = this.url + 'classadd'
+				this.$http.post(url, message)
+		    	.then((response) => {
+		    		console.log(response.data)
+		    		this.$store.commit('setOntologyLibrary', response.data)
+		    	}, (response) => {
+		    		// error
+		    	})
+			},
+			removeClass: function () {
+				var message = {'className': this.selectedClassName, 'libraryName': this.projectName}
+				let url = this.url + 'classdel'
+				this.$http.post(url, message)
+		    	.then((response) => {
+		    		console.log(response.data)
+		    		this.$store.commit('setOntologyLibrary', response.data)
+		    	}, (response) => {
+		    		// error
+		    	})
 			}
 		}
 	}
 </script>
-<style>
+<style scoped>
 	.classA {
 		overflow: hidden;
 	}

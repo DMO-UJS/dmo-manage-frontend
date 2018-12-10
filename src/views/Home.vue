@@ -79,7 +79,6 @@
 <script>
 
 import headTop from '../components/Header' 
-
 	export default {
 		name: 'home',
 		data() {
@@ -89,22 +88,7 @@ import headTop from '../components/Header'
 					description: "",
 					state: true,
 				},
-				ontologyLibraryList: [{
-					name: "妊娠期糖尿病",
-					owner: "胡惊涛",
-					date: "2018-11-05",
-					state: "私有"
-				}, {
-					name: "高血压",
-					owner: "徐",
-					date: "2018-11-06",
-					state: "公有"
-				}, {
-					name: "贫血",
-					owner: "陈",
-					date: "2018-11-07",
-					state: "私有"
-				}],
+				ontologyLibraryList: [],
 				options: [{
 					value: "打开",
 				}, {
@@ -115,9 +99,11 @@ import headTop from '../components/Header'
 				currentRow: null,
 				value: '',
 				dialogVisable: false,
-				createUrl: 'http://192.168.1.102:5000/ontocreate',
+				url: 'http://192.168.1.110:5000/',
 				file: null,
 			}
+		},
+		computed: {
 		},
 		mounted() {
 			this.getOntologyLibraryList()
@@ -127,7 +113,8 @@ import headTop from '../components/Header'
 		},
 		methods: {
 			getOntologyLibraryList: function () {
-				this.$http.get("http://192.168.1.102:5000/ontolist")
+				let url = this.url + "ontolist"
+				this.$http.get(url)
 					.then((response) => {
 						this.ontologyLibraryList = response.data
 					}, (response) => {
@@ -139,15 +126,16 @@ import headTop from '../components/Header'
 				let message = this.ontologyLibrary
 				message.owner = "陈"
 				message.state = Number(this.ontologyLibrary.state)
+				let url = this.url + 'ontocreate'
 				console.log(message.owner)
 				if (this.file) {
 					this.fileUpload()
 				}
-				this.$http.post(this.createUrl, message)
+				this.$http.post(url, message)
          .then((response) => {
          		 console.log(response.data)
          			this.programs = response.data
-         			this.init()
+         			this.getOntologyLibraryList()
          }, (response) => {
          	alert(response)
          })
@@ -156,19 +144,42 @@ import headTop from '../components/Header'
 				this.currentRow = val
 			},
 			handleCurrentEdit: function (row) {
-				console.log(row)
-				this.$router.push('class')
+				// console.log(row.name)
+				let message = {'name': row.name}
+				let url = this.url + 'ontolistselect' 
+				this.$store.commit('setLibraryName', row.name)
+				// console.log(message)
+				this.$http.post(url, message)
+		    	.then((response) => {
+		    		console.log(response.data)
+		    		this.$store.commit('setOntologyLibrary', response.data)
+		    		this.$router.push('class')
+		    	}, (response) => {
+		    		console.log(response)
+		    	})
 			},
 			handleEdit: function (row) {
 				console.log(row)
-				this.$router.push('class')
+				let message = {'name': row.name}
+				let url = this.url + 'ontolistselect'
+				this.$store.commit('setLibraryName', row.name)
+				console.log(message)
+				this.$http.post(url, message)
+		    	.then((response) => {
+		    		console.log(response.data)
+		    		this.$store.commit('setOntologyLibrary', response.data)
+		    		this.$router.push('class')
+		    	}, (response) => {
+		    		// error
+		    	})
 			},
 			handleDelete(index, rows) {
 		    let message = rows.splice(index, 1)[0];
+		    let url = this.url + 'ontodelete'
 		    console.log(message)
-		    this.$http.post("http://192.168.1.102:5000/ontodelete", message)
+		    this.$http.post(url, message)
 		    	.then((response) => {
-		    		// success
+		    		this.getOntologyLibraryList()
 		    		alert("删除成功")
 		    	}, (response) => {
 		    		// error
@@ -178,9 +189,10 @@ import headTop from '../components/Header'
 	      this.file = event.target.files[0]
 	    },
 	    fileUpload: function () {
+	    	let url = this.url + 'ontofileupload'
 	    	const formData =  new FormData()
 	      formData.append('file', this.file)
-	      this.$http.post("http://192.168.1.102:5000/ontofileupload", formData).then(response => {
+	      this.$http.post(url, formData).then(response => {
 	        // success
 	      }, response => {
 	        // error

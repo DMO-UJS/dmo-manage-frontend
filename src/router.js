@@ -1,10 +1,13 @@
 import Vue from 'vue'
 import App from './App'
 import Router from 'vue-router'
+import Login from './views/Login.vue'
+import ResetPass from './views/ResetPass.vue'
 import Home from './views/Home.vue'
 import Class from './views/Class.vue'
 import Properties from './views/Properties.vue'
 import Test from './views/Test.vue'
+
 Vue.use(Router)
 
 export default new Router({
@@ -15,6 +18,16 @@ export default new Router({
       children: [
       {
         path: '',
+        name: "login",
+        component: Login
+      },
+      {
+        path: 'resetPass',
+        name: "resetPass",
+        component: ResetPass
+      },
+      {
+        path: 'home',
         name: "home",
         component: Home
       },
