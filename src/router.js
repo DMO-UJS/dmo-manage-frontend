@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App'
 import Router from 'vue-router'
 import Login from './views/Login.vue'
-import ResetPass from './views/ResetPass.vue'
+import Resetpass from './views/Resetpass.vue'
 import Home from './views/Home.vue'
 import Class from './views/Class.vue'
 import Properties from './views/Properties.vue'
@@ -22,9 +22,9 @@ export default new Router({
         component: Login
       },
       {
-        path: 'resetPass',
-        name: "resetPass",
-        component: ResetPass
+        path: 'resetpass',
+        name: "resetpass",
+        component: Resetpass
       },
       {
         path: 'home',

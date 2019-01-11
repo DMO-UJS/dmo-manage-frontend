@@ -2,6 +2,7 @@
 	<div class="classA">
 		<headTop :project-name="projectName"></headTop>
 		<el-row :gutter='20'>
+			<!-- 类的层级关系 -->
 			<el-col :span="6">
 				<div class="grid-content">
 					<el-container>
@@ -13,26 +14,40 @@
 								<el-row>
 									<el-button type="primary" icon="el-icon-plus" circle size="mini" @click="addClassDialogVisable = true"></el-button>
 									<el-button type="danger" icon="el-icon-minus" circle size="mini" @click="removeClass"></el-button>
-									<el-button type="success" icon="el-icon-search" circle size="mini"></el-button>
+									<el-button type="success" icon="el-icon-search" circle size="mini"@click="searchClassDialogVisable = true"></el-button>
 								</el-row>
 								<el-dialog title="添加类项" :visible.sync="addClassDialogVisable" width="800px">
-										<el-form>
-											<el-form-item label="类名">
-												<el-input type="text" v-model="className"></el-input>
-											</el-form-item>
-											<el-form-item>
-												<el-button type="primary" @click="addClass">添加</el-button>
-											</el-form-item>
-										</el-form>
-									</el-dialog>
+									<el-form>
+										<el-form-item label="类名">
+											<el-input type="text" v-model="className"></el-input>
+										</el-form-item>
+										<el-form-item>
+											<el-button type="primary" @click="addClass">添加</el-button>
+										</el-form-item>
+									</el-form>
+								</el-dialog>
+								<el-dialog title="查询类项" :visible.sync="searchClassDialogVisable" width="800px">
+									<el-form>
+										<el-form-item label="查询关键字">
+											<el-input type="text" v-model="searchText" @change="searchClass"></el-input>
+											<p class="searchResultMsg">匹配结果：</p>
+											<div class="searchResult"></div>
+										</el-form-item>
+									</el-form>
+								</el-dialog>
 							</div>
 						</el-header>
 						<el-main>
-							<classHierarchy :ontology-library="ontologyLibrary"></classHierarchy>
+							<classHierarchy 
+							:ontology-library="ontologyLibrary"
+							:project-name="projectName"
+							:search-text="searchText">
+							</classHierarchy>
 						</el-main>
 					</el-container>
 				</div>
 			</el-col>
+			<!-- 类 -->
 			<el-col :span="12">
 				<div class="grid-content">
 					<el-container>
@@ -42,8 +57,8 @@
 							</div>
 							<div class="classA-tools">
 								<el-row>
-									<el-button icon="el-icon-edit-outline" size="mini"></el-button>
-									<el-button icon="el-icon-view" size="mini"></el-button>
+									<el-button icon="el-icon-edit-outline" size="mini" @click="detailVisable = true, viewVisable = false"></el-button>
+									<el-button icon="el-icon-view" size="mini" @click="viewVisable = true, detailVisable = false"></el-button>
 								</el-row>
 							</div>
 						</el-header>
@@ -61,35 +76,37 @@
 											<input type="text" name="value" v-model="item.value">
 										</div>
 									</li>
-									<input type="text" name="property" placeholder="属性" v-model="annotation.property">
-									<input type="text" name="value" placeholder="值" v-model="annotation.value">
+									<input type="text" name="property" placeholder="输入属性" v-model="annotation.property">
+									<input type="text" name="value" placeholder="输入值" v-model="annotation.value">
 								</ul>
 							</div>
 							<div class="detail" name="parents">
 								Parents
 								<ul>
 									<li v-for="item in selectedClass.parents">
-										<div>
-											<input type="text" name="className" v-model="item.parentName">
-										</div>
+										<input type="text" name="className" v-model="item.name">
 									</li>
+									<input type="text" name="className" placeholder="输入类名" v-model="parentName">
 								</ul>
-								<input type="text" name="className" placeholder="请输入类名" v-model="parentName">
 							</div>
 							<div class="detail" name="relationships">
 								Relationships
-								<div>
-									<input type="text" name="property" placeholder="属性">
-									<input type="text" name="value" placeholder="值">
-								</div>
+								<ul>
+									<li v-for="item in selectedClass.relationships">
+										<input type="text" name="property" v-model="item.relation">
+										<input type="text" name="value" v-model="item.range">
+									</li>
+								</ul>
+									<input type="text" name="property" placeholder="输入属性">
+									<input type="text" name="value" placeholder="输入值">
 							</div>
 						</el-main>
 						<el-main v-if="viewVisable">
-
 						</el-main>
 					</el-container>
 				</div>
 			</el-col>
+			<!-- 备注 -->
 			<el-col :span="6">
 				<div class="grid-content">
 					<el-container>
@@ -136,14 +153,6 @@ import classHierarchy from "../components/ClassHierarchy"
 		name: "class",
 		data() {
 			return {
-				selectedClass: {
-					className:'疾病',
-					iri: 'http://owl/onto.owl#疾病',
-					annotations: [],
-					parents: [],
-					relationships: [],
-					comments: []
-				},
 				className: '',
 				annotation:{
 					property: '',
@@ -159,11 +168,13 @@ import classHierarchy from "../components/ClassHierarchy"
 					content: '',
 					createDate: '2018'
 				},
+				searchText: '',
 				dialogVisable: false,
 				detailVisable: true,
 				viewVisable: false,
 				addClassDialogVisable: false,
-				url: 'http://192.168.1.110:5000/', 
+				searchClassDialogVisable: false,
+				url: 'http://192.168.1.106:5000/', 
 			}
 		},
 		computed: {
@@ -176,6 +187,9 @@ import classHierarchy from "../components/ClassHierarchy"
 			},
 			selectedClassName: function () {
 				return this.$store.state.selectedClassName
+			},
+			selectedClass: function () {
+				return this.$store.state.classInfo
 			}
 		},
 		components: {
@@ -183,14 +197,6 @@ import classHierarchy from "../components/ClassHierarchy"
 			classHierarchy
 		},
 		methods: {
-			editComments: function () {
-				
-			},
-			submitComment: function () {
-				this.selectedClass.comments.push(this.comment)
-				this.comment = ''
-				this.dialogVisable = false
-			},
 			addClass: function () {
 				this.addClassDialogVisable = false
 				var message = {'className': this.className, 'parentName': this.selectedClassName, 'libraryName': this.projectName}
@@ -213,7 +219,25 @@ import classHierarchy from "../components/ClassHierarchy"
 		    	}, (response) => {
 		    		// error
 		    	})
-			}
+			},
+			searchClass: function () {
+				var message = {'searchText': this.selectedClassName}
+				let url = this.url + 'classsearch'
+				this.$http.post(url, message)
+					.then((response) => {
+						console.log(response.data)
+					}, (response) => {
+						// error
+					})
+			},
+			editComments: function () {
+				
+			},
+			submitComment: function () {
+				this.selectedClass.comments.push(this.comment)
+				this.comment = ''
+				this.dialogVisable = false
+			},
 		}
 	}
 </script>
@@ -268,6 +292,14 @@ import classHierarchy from "../components/ClassHierarchy"
   	background: #e4e7ed;
   }
 
+  .classA-hierarchy-tools .searchResult {
+  	padding: 0 15px;
+  	width: 728px;
+  	height: 400px;
+  	border: 1px solid #dcdfe6;
+  	border-radius: 4px;
+  }
+
   /*class*/
   .classA-header {
   	box-sizing: border-box;
@@ -289,16 +321,16 @@ import classHierarchy from "../components/ClassHierarchy"
   }
 
   .el-main {
-  	margin: 0;
+  	margin-top: 10px;
   	padding: 0;
   }
-  .el-main > .detail {
+  .el-main .detail {
   	box-sizing: border-box;
-  	margin: 0 0 2px 0;
+  	margin: 0px 0 2px 0;
   	padding: 10px;
   	width: 100%;
   	height: 100px;
-  	background: #f5f7fa;
+  	/*background: #f5f7fa;*/
   }
 
   .detail * {
@@ -306,8 +338,24 @@ import classHierarchy from "../components/ClassHierarchy"
   }
   .detail input {
   	width: 400px;
+  	height: 18px;
+  	padding: 2px 1px;
+  	border: none;
+  	border-bottom: 1px solid #9a9a9a;
+  	background: transparent;
   }
 
+  .detail input[name="property"] {
+  	width: 200px;
+  }
+
+  .detail input[name="value"] {
+  	width: 600px;
+  }
+
+  .detail input[name="className"] {
+  	width: 800px;
+  }
   /*备注对话框*/
   .el-dialog textarea {
   	width: 100%;

@@ -1,5 +1,6 @@
 <template>
-	<div id="classHierarchy"></div>
+	<div id="classHierarchy">
+	</div>
 </template>
 
 <script>
@@ -10,6 +11,7 @@
 			return {
 				selectedNodeName: '',
 				ontologyHierarchy: this.ontologyLibrary,
+				url: 'http://192.168.1.106:5000/',
 			}
 		},
 		computed: {
@@ -18,6 +20,7 @@
 			// 	return this.$store.state.selectedOntologyLibrary
 			// }
 		},
+		
 		watch: {
 			ontologyLibrary: {
 				handler(newValue, oldValue) {
@@ -27,12 +30,18 @@
 					that.init()
 				},
 				deep: true
+			},
+			searchText: {
+				handler(newValue, oldValue) {
+					var that = this
+					that.select()
+				}
 			}
 		},
 		mounted() {
 			this.init()
 		},
-		props: ['ontologyLibrary'],
+		props: ['ontologyLibrary', 'projectName', 'searchText'],
 		methods: {
 			// 根据ontologyLibrary创建缩进列表
 			init: function () {
@@ -175,7 +184,16 @@
 		    }
 		    // Toggle children on click.
 		    function click(d, i, nodes) {
+		    	console.log(that.projectName)
 		    		that.$store.commit('setClassName', d.data.name)
+		    		let url = that.url + 'classselect'
+		    		let message = {'className': d.data.name, 'libraryName': that.projectName}
+		    		that.$http.post(url, message)
+							.then((response) => {
+								that.$store.commit('setClassInfo', response.data)
+							}, (response) => {
+								// error
+							})
 		    		selectedNode = nodes[i]
 		        if (d.children) {
 		            d._children = d.children;
@@ -198,6 +216,13 @@
 		        return "#fd8d3c";
 		    	}
 		    }
+	  	},
+	  	select: function () {
+	  		d3.selectAll(".node").selectAll("text").filter(function (d, i, nodes) {
+	  			return nodes[i].innerHTML == "道法术"
+	  		}).select(function (d, i, nodes) {
+	  			return nodes[i].previousElementSibling
+	  		}).dispatch('click')
 	  	}
 		}
 	}

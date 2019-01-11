@@ -11,7 +11,7 @@
 			<el-submenu index="3" id="login">
 				<template slot="title">{{userName}}</template>
 				<el-menu-item index="3-1">注销</el-menu-item>
-				<el-menu-item index="3-2">修改密码</el-menu-item>
+				<el-menu-item index="3-2" @click="resetpass">修改密码</el-menu-item>
 			</el-submenu>
 		</el-menu>
 		<el-menu
@@ -51,6 +51,9 @@
 			},
 			selectProperty: function () {
 				this.$router.push('properties')
+			},
+			resetpass: function () {
+				this.$router.push('resetpass')
 			}
 		}
 	}

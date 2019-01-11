@@ -8,7 +8,8 @@ export default new Vuex.Store({
 		userInfo: null,
 		libraryName: '',
 		selectedOntologyLibrary: {},
-		selectedClassName: ''
+		selectedClassName: '',
+		classInfo: {},
   },
 	mutations: {
 		setLibraryName(state, message) {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
 		},
 		setUserInfo(state, userInfo) {
 			this.state.userInfo = userInfo
+		},
+		setClassInfo(state, classInfo) {
+			this.state.classInfo = classInfo
 		}
 	}
 })
