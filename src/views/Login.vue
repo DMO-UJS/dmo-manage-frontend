@@ -1,7 +1,10 @@
 <template>
 	<div id="login">
 		<el-container>
-			<el-aside width="1200px">Aside</el-aside>
+			<el-aside class="login-aside" width="1200px">
+				<!-- <img src="../assets/aside.png"> -->
+				体验！体验！注意用户体验！
+			</el-aside>
 			<el-main>
 				<div class="header-logo"><img id="logo" src="../assets/医院.svg">镇江第四人民医院</div>
 				<el-form :model="loginInfo" :rules="loginRules">
@@ -91,7 +94,7 @@
 					]
 				},
 				dialogVisable: false,
-				url: 'http://192.168.1.106:5000/', 
+				url: 'http://192.168.1.101:5000/', 
 			}
 		},
 		mounted() {
@@ -145,7 +148,12 @@
 </script>
 
 <style scoped>
-	#login img {
+	.login-aside img {
+		width: 1200px;
+		height: 600px;
+	}
+
+	.header-logo img {
 		width: 50px;
 		height: 50px;
 		margin-bottom: -15px;
@@ -156,7 +164,10 @@
 	}
 
 	.el-aside {
+		padding: 60px 0;
 		background: #f00;
+		color: #fff;
+		font-size: 40px;
 	}
 
 	.el-main {

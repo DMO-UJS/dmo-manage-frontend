@@ -2,6 +2,38 @@
 	<div class="classA">
 		<headTop :project-name="projectName"></headTop>
 		<el-row :gutter='20'>
+
+			<!-- 诊疗指南 -->
+			<el-col :span="11">
+				<div class="grid-content">
+					<el-container>
+						<el-header>
+							<div class="classA-hierarchy-header">
+								诊疗指南
+							</div>
+							<div class="classA-tools">
+								<el-row>
+									<el-button icon="el-icon-document" size="mini" @click="selectPdf">上传</el-button>
+									<input id="uploadPdf" type="file" @change="fileSave">
+									<el-button icon="el-icon-search" size="mini"@click="searchPdfDialogVisable = true">检索</el-button>
+									<el-dialog title="查询文献" :visible.sync="searchPdfDialogVisable" width="800px">
+									<el-form>
+										<el-form-item label="查询关键字">
+											<el-input type="text" v-model="searchPdfText" @change="searchPdf"></el-input>
+											<p class="searchResultMsg">匹配结果：</p>
+											<div class="searchResult"></div>
+										</el-form-item>
+									</el-form>
+								</el-dialog>
+								</el-row>
+							</div>
+						</el-header>
+						<el-main>
+							<embed style="width: 800px;height: 630px;" src="http://192.168.1.101:5000/static/zhinan.pdf"></embed>
+						</el-main>
+					</el-container>
+				</div>
+			</el-col>
 			<!-- 类的层级关系 -->
 			<el-col :span="6">
 				<div class="grid-content">
@@ -12,9 +44,9 @@
 							</div>
 							<div class="classA-hierarchy-tools">
 								<el-row>
-									<el-button type="primary" icon="el-icon-plus" circle size="mini" @click="addClassDialogVisable = true"></el-button>
-									<el-button type="danger" icon="el-icon-minus" circle size="mini" @click="removeClass"></el-button>
-									<el-button type="success" icon="el-icon-search" circle size="mini"@click="searchClassDialogVisable = true"></el-button>
+									<el-button icon="el-icon-plus" size="mini" @click="addClassDialogVisable = true">添加</el-button>
+									<el-button icon="el-icon-minus" size="mini" @click="removeClass">删除</el-button>
+									<el-button icon="el-icon-search" size="mini"@click="searchClassDialogVisable = true">检索</el-button>
 								</el-row>
 								<el-dialog title="添加类项" :visible.sync="addClassDialogVisable" width="800px">
 									<el-form>
@@ -48,7 +80,7 @@
 				</div>
 			</el-col>
 			<!-- 类 -->
-			<el-col :span="12">
+			<el-col :span="7">
 				<div class="grid-content">
 					<el-container>
 						<el-header>
@@ -57,8 +89,8 @@
 							</div>
 							<div class="classA-tools">
 								<el-row>
-									<el-button icon="el-icon-edit-outline" size="mini" @click="detailVisable = true, viewVisable = false"></el-button>
-									<el-button icon="el-icon-view" size="mini" @click="viewVisable = true, detailVisable = false"></el-button>
+									<el-button icon="el-icon-edit-outline" size="mini" @click="detailVisable = true, viewVisable = false">编辑</el-button>
+									<el-button icon="el-icon-view" size="mini" @click="viewVisable = true, detailVisable = false">视图</el-button>
 								</el-row>
 							</div>
 						</el-header>
@@ -106,40 +138,6 @@
 					</el-container>
 				</div>
 			</el-col>
-			<!-- 备注 -->
-			<el-col :span="6">
-				<div class="grid-content">
-					<el-container>
-						<el-header>
-							<div class="classA-hierarchy-header">
-								备注：{{selectedClass.className}}
-							</div>
-							<div class="classA-hierarchy-tools">
-								<el-row>
-									<el-button icon="el-icon-document" size="mini" @click="dialogVisable = true"></el-button>
-									<el-dialog title="添加备注" :visible.sync="dialogVisable" width="800px">
-										<textarea v-model="comment.content"></textarea>
-										<div>
-											<el-button type="primary" @click="submitComment">确认</el-button>
-										</div>
-									</el-dialog>
-								</el-row>
-							</div>
-						</el-header>
-						<el-main>
-							<ul>
-								<li v-for="item in selectedClass.comments">
-									<div class="classA-comment">
-										<p>{{item.owner}}</p>
-										<p>{{item.createDate}}</p>
-										<p>{{item.content}}</p>
-									</div>
-								</li>
-							</ul>
-						</el-main>
-					</el-container>
-				</div>
-			</el-col>
 		</el-row>
 	</div>
 </template>
@@ -174,7 +172,10 @@ import classHierarchy from "../components/ClassHierarchy"
 				viewVisable: false,
 				addClassDialogVisable: false,
 				searchClassDialogVisable: false,
-				url: 'http://192.168.1.106:5000/', 
+				searchPdfDialogVisable: false,
+				searchPdfText: '',
+				file: null,
+				url: 'http://192.168.1.101:5000/', 
 			}
 		},
 		computed: {
@@ -230,20 +231,21 @@ import classHierarchy from "../components/ClassHierarchy"
 						// error
 					})
 			},
-			editComments: function () {
+			selectPdf: function () {
+				document.querySelector("#uploadPdf").click();
+			},
+			fileSave: function() {
+	      this.file = event.target.files[0]
+	    },
+			searchPdf: function () {
 				
-			},
-			submitComment: function () {
-				this.selectedClass.comments.push(this.comment)
-				this.comment = ''
-				this.dialogVisable = false
-			},
+			}
 		}
 	}
 </script>
 <style scoped>
 	.classA {
-		overflow: hidden;
+		overflow: auto;
 	}
 	.el-col .el-header {
 		padding: 0;
@@ -264,12 +266,13 @@ import classHierarchy from "../components/ClassHierarchy"
   .grid-content {
   	border: 1px solid #e4e7ed;
   	border-radius: 2px;
-    min-height: 360px;
+    min-height: 600px;
   }
 
   .grid-content .el-main {
   	padding-left:0;
   	padding-right: 0;
+  	height: 660px;
   }
 
   /*class hierarchy*/
@@ -292,7 +295,7 @@ import classHierarchy from "../components/ClassHierarchy"
   	background: #e4e7ed;
   }
 
-  .classA-hierarchy-tools .searchResult {
+  .searchResult {
   	padding: 0 15px;
   	width: 728px;
   	height: 400px;
@@ -346,15 +349,15 @@ import classHierarchy from "../components/ClassHierarchy"
   }
 
   .detail input[name="property"] {
-  	width: 200px;
+  	width: 100px;
   }
 
   .detail input[name="value"] {
-  	width: 600px;
+  	width: 300px;
   }
 
   .detail input[name="className"] {
-  	width: 800px;
+  	width: 400px;
   }
   /*备注对话框*/
   .el-dialog textarea {
@@ -377,4 +380,9 @@ import classHierarchy from "../components/ClassHierarchy"
   	background: #f5f7fa;
   	box-shadow: 3px 3px 2px #e4e7ed;
   }
+
+  	/*pdf文件*/
+  	#uploadPdf {
+  		display: none;
+  	}
 </style>

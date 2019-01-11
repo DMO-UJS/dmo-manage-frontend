@@ -62,7 +62,7 @@
             { validator: validatePass2, trigger: 'blur' }
           ],
 				},
-				url: 'http://192.168.1.103:5000/', 
+				url: 'http://192.168.1.101:5000/', 
 			}
 		},
 		computed: {

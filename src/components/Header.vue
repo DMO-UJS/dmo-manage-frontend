@@ -14,7 +14,7 @@
 				<el-menu-item index="3-2" @click="resetpass">修改密码</el-menu-item>
 			</el-submenu>
 		</el-menu>
-		<el-menu
+		<!-- <el-menu
 			name="menu"
 			background-color="#e4e7ed"
 			mode="horizontal"
@@ -22,7 +22,7 @@
 			v-if="projectName">
 			<el-menu-item index="1" @click="selectClass">类</el-menu-item>
 			<el-menu-item index="2" @click="selectProperty">属性</el-menu-item>
-		</el-menu>
+		</el-menu> -->
 	</div>
 </template>
 

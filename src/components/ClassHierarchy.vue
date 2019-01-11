@@ -11,7 +11,7 @@
 			return {
 				selectedNodeName: '',
 				ontologyHierarchy: this.ontologyLibrary,
-				url: 'http://192.168.1.106:5000/',
+				url: 'http://192.168.1.101:5000/',
 			}
 		},
 		computed: {
