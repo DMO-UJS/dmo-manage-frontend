@@ -10,6 +10,7 @@ export default new Vuex.Store({
 		selectedOntologyLibrary: {},
 		selectedClassName: '',
 		classInfo: {},
+		url: 'http://120.79.89.116:5000/'
   },
 	mutations: {
 		setLibraryName(state, message) {

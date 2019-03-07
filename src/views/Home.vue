@@ -92,11 +92,13 @@ import headTop from '../components/Header'
 				currentRow: null,
 				value: '',
 				dialogVisable: false,
-				url: 'http://192.168.1.101:5000/',
 				file: null,
 			}
 		},
 		computed: {
+			url: function () {
+				return this.$store.state.url
+			}
 		},
 		mounted() {
 			this.getOntologyLibraryList()

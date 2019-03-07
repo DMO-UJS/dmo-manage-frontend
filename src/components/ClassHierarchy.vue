@@ -11,14 +11,12 @@
 			return {
 				selectedNodeName: '',
 				ontologyHierarchy: this.ontologyLibrary,
-				url: 'http://192.168.1.101:5000/',
 			}
 		},
 		computed: {
-			// ontologyLibrary() {
-			// 	console.log(this.$store.state.selectedOntologyLibrary)
-			// 	return this.$store.state.selectedOntologyLibrary
-			// }
+			url: function () {
+				return this.$store.state.url
+			}
 		},
 		
 		watch: {
@@ -31,7 +29,7 @@
 				},
 				deep: true
 			},
-			searchText: {
+			searchClassName: {
 				handler(newValue, oldValue) {
 					var that = this
 					that.select()
@@ -41,7 +39,7 @@
 		mounted() {
 			this.init()
 		},
-		props: ['ontologyLibrary', 'projectName', 'searchText'],
+		props: ['ontologyLibrary', 'projectName', 'searchClassName'],
 		methods: {
 			// 根据ontologyLibrary创建缩进列表
 			init: function () {
@@ -218,8 +216,10 @@
 		    }
 	  	},
 	  	select: function () {
+	  		console.log(this.searchClassName)
+	  		let that = this
 	  		d3.selectAll(".node").selectAll("text").filter(function (d, i, nodes) {
-	  			return nodes[i].innerHTML == "道法术"
+	  			return nodes[i].innerHTML == that.searchClassName
 	  		}).select(function (d, i, nodes) {
 	  			return nodes[i].previousElementSibling
 	  		}).dispatch('click')

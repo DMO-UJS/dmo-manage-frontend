@@ -62,12 +62,14 @@
             { validator: validatePass2, trigger: 'blur' }
           ],
 				},
-				url: 'http://192.168.1.101:5000/', 
 			}
 		},
 		computed: {
 			uid: function () {
 				return this.$store.state.userInfo.uid
+			},
+			url: function () {
+				return this.$store.state.url
 			}
 		},
 		methods: {

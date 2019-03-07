@@ -94,7 +94,11 @@
 					]
 				},
 				dialogVisable: false,
-				url: 'http://192.168.1.101:5000/', 
+			}
+		},
+		computed: {
+			url: function () {
+				return this.$store.state.url
 			}
 		},
 		mounted() {

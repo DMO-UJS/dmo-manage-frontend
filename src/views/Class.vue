@@ -21,7 +21,13 @@
 										<el-form-item label="查询关键字">
 											<el-input type="text" v-model="searchPdfText" @change="searchPdf"></el-input>
 											<p class="searchResultMsg">匹配结果：</p>
-											<div class="searchResult"></div>
+											<div class="searchResult file">
+												<ul>
+													<li v-for="(item, index) in searchPdfResult" @click="showPdf(index)">
+														<p>{{item.fileName}}</p>
+													</li>
+												</ul>
+											</div>
 										</el-form-item>
 									</el-form>
 								</el-dialog>
@@ -29,7 +35,7 @@
 							</div>
 						</el-header>
 						<el-main>
-							<embed style="width: 800px;height: 630px;" src="http://192.168.1.101:5000/static/zhinan.pdf"></embed>
+							<div id="pdf"></div>
 						</el-main>
 					</el-container>
 				</div>
@@ -63,7 +69,13 @@
 										<el-form-item label="查询关键字">
 											<el-input type="text" v-model="searchText" @change="searchClass"></el-input>
 											<p class="searchResultMsg">匹配结果：</p>
-											<div class="searchResult"></div>
+											<div class="searchResult className">
+												<ul>
+													<li v-for="(item, index) in searchClassResult" @click="locatingClass(index)">
+														<p>{{item.className}}</p>
+													</li>
+												</ul>
+											</div>
 										</el-form-item>
 									</el-form>
 								</el-dialog>
@@ -73,7 +85,7 @@
 							<classHierarchy 
 							:ontology-library="ontologyLibrary"
 							:project-name="projectName"
-							:search-text="searchText">
+							:search-class-name="searchClassName">
 							</classHierarchy>
 						</el-main>
 					</el-container>
@@ -90,7 +102,7 @@
 							<div class="classA-tools">
 								<el-row>
 									<el-button icon="el-icon-edit-outline" size="mini" @click="detailVisable = true, viewVisable = false">编辑</el-button>
-									<el-button icon="el-icon-view" size="mini" @click="viewVisable = true, detailVisable = false">视图</el-button>
+									<el-button icon="el-icon-view" size="mini" @click="showView">视图</el-button>
 								</el-row>
 							</div>
 						</el-header>
@@ -146,7 +158,7 @@
 
 import headTop from "../components/Header"
 import classHierarchy from "../components/ClassHierarchy"
-
+import classCluster from '../components/ClassCluster'
 	export default {
 		name: "class",
 		data() {
@@ -167,6 +179,8 @@ import classHierarchy from "../components/ClassHierarchy"
 					createDate: '2018'
 				},
 				searchText: '',
+				searchClassName: '',
+				searchClassResult: [],
 				dialogVisable: false,
 				detailVisable: true,
 				viewVisable: false,
@@ -174,8 +188,9 @@ import classHierarchy from "../components/ClassHierarchy"
 				searchClassDialogVisable: false,
 				searchPdfDialogVisable: false,
 				searchPdfText: '',
-				file: null,
-				url: 'http://192.168.1.101:5000/', 
+				searchPdfResult: [],
+				fileName: '',
+				file: null
 			}
 		},
 		computed: {
@@ -191,11 +206,15 @@ import classHierarchy from "../components/ClassHierarchy"
 			},
 			selectedClass: function () {
 				return this.$store.state.classInfo
+			},
+			url: function () {
+				return this.$store.state.url
 			}
 		},
 		components: {
 			headTop,
-			classHierarchy
+			classHierarchy,
+			classCluster
 		},
 		methods: {
 			addClass: function () {
@@ -222,23 +241,69 @@ import classHierarchy from "../components/ClassHierarchy"
 		    	})
 			},
 			searchClass: function () {
-				var message = {'searchText': this.selectedClassName}
+				var message = {'searchText': this.searchText, 'libraryName': this.projectName}
 				let url = this.url + 'classsearch'
 				this.$http.post(url, message)
 					.then((response) => {
 						console.log(response.data)
+						this.searchClassResult = response.data
 					}, (response) => {
 						// error
 					})
+			},
+			locatingClass: function (index) {
+				this.searchClassDialogVisable = false
+				this.searchClassName = this.searchClassResult[index].className
+				console.log(this.searchClassName)
 			},
 			selectPdf: function () {
 				document.querySelector("#uploadPdf").click();
 			},
 			fileSave: function() {
 	      this.file = event.target.files[0]
+	      this.fileName = event.target.files[0].name
+	      console.log(this.fileName)
+	      let url = this.url + 'fileupload'
+	      const formData =  new FormData()
+	      formData.append('file', event.target.files[0])
+	      formData.append('fileName', event.target.files[0].name)
+	      this.$http.post(url, formData).then(response => {
+	      	if (!document.querySelector("embed")) {
+	      		var pdfTag = document.createElement("embed")
+		      	pdfTag.setAttribute("src", this.url + response.data.URL)
+		      	document.querySelector("#pdf").appendChild(pdfTag)
+		        this.$forceUpdate()
+	      	} else {
+	      		document.querySelector("#pdf").removeChild(document.querySelector("embed"))
+	      		var pdfTag = document.createElement("embed")
+		      	pdfTag.setAttribute("src", this.url + response.data.URL)
+		      	document.querySelector("#pdf").appendChild(pdfTag)
+		        this.$forceUpdate()
+	      	}
+	      }, response => {
+	        // error
+	      })
 	    },
 			searchPdf: function () {
-				
+				let message = {'fileName': this.searchPdfText}
+				let url = this.url + 'filefuzzy'
+				this.$http.post(url, message).then(response => {
+					this.searchPdfResult = response.data
+	      }, response => {
+	        // error
+	      })
+			},
+			showPdf: function (index) {
+				this.searchPdfDialogVisable = false
+				var pdfTag = document.createElement("embed")
+      	pdfTag.setAttribute("src", this.url + this.searchPdfResult[index].filePath)
+      	document.querySelector("#pdf").appendChild(pdfTag)
+        this.$forceUpdate()
+			},
+			showView: function () {
+				this.viewVisable = true
+				this.detailVisable = false
+				window.open("http://120.79.89.116:5000/static/owlKG.html")
 			}
 		}
 	}
@@ -327,6 +392,12 @@ import classHierarchy from "../components/ClassHierarchy"
   	margin-top: 10px;
   	padding: 0;
   }
+  .searchResult.className li {
+  	margin: 0 0 2px;
+		padding: 0 10px;
+		background: #e4e7ed;
+		cursor: pointer;
+  }
   .el-main .detail {
   	box-sizing: border-box;
   	margin: 0px 0 2px 0;
@@ -384,5 +455,13 @@ import classHierarchy from "../components/ClassHierarchy"
   	/*pdf文件*/
   	#uploadPdf {
   		display: none;
+  	}
+
+  	.searchResult.file li {
+  		margin: 0 0 2px;
+  		padding: 0 10px;
+  		list-style-image: url("../assets/pdf.svg");
+  		background: #e4e7ed;
+  		cursor: pointer;
   	}
 </style>
